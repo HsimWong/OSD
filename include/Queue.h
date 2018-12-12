@@ -1,6 +1,7 @@
 #ifndef QUEUE_H
 #define QUEUE_H 
 #include<iostream>
+#include "PCB.h"
 using namespace std;
 
 
@@ -8,40 +9,81 @@ class Queue{
 private:
 	PCB * head;
 	PCB * tail;
+	PCB * buff;
 	int capacity;
 public:
+	Queue();
 	Queue(PCB * head);
 	~Queue();
-	bool notNull();
-	bool push();
+	bool isEmpty();
+	bool push(PCB * new_node);
 	bool pop();
 	PCB * top();
 	int get_capacity();
 };
 
+Queue::Queue(){
+	this -> buff = this -> head = this -> tail = new PCB("NULL",0,0,0);
+	this -> tail -> append	
+	this -> capacity = 0;
+}
+
 Queue::Queue(PCB * head){
-	this -> head = head;
-	this -> tail = head;
+	this -> head = this -> buff = this -> tail = head;
+	this -> capacity = 1;
+	return;
+}
+
+bool Queue :: isEmpty(){
+	return (this -> get_capacity() == 0);
 }
 
 bool Queue:: push(PCB * new_node){
-	this -> tail -> append(new_node)
+	if(this -> capacity == 0){
+		this -> head = this -> tail = new_node;
+	}
+	else{
+		this -> tail -> append(new_node);
+	}
+	this -> capacity ++;
 	return true;
 }
 
 bool Queue::pop(){
-	if(this -> notNull()){
-		this -> head = this -> head -> next_node;
-		this -> head -> ~PCB();
-		return true;
-	}
-	else{
+	if(this -> isEmpty()){
 		cerr << "Error occured when pop the queue" << endl;
 		return false;
 	}
+	else{
+		// PCB * temp = this -> head;
+		// if(this -> capacity == 1){
+		// 	this -> head = this -> tail = this -> buff;
+		// }
+		// else{
+		// 	this -> head = temp -> next_node;
+		// }
+		// temp -> ~PCB();
+		// this -> capacity--;
+		PCB * temp = this -> head;
+		this -> head = this -> head -> next_node;
+		this -> capacity --;
+		delete temp;
+		return true;
+	}
 }
 
+PCB * Queue::top(){
+	if(this -> isEmpty()){
+		cerr << "No top PCB found, the queue is empty";
+		return NULL;
+	}
+	else{
+		return this -> head; 
+	}
+}
 
-
+int Queue::get_capacity(){
+	return (this -> capacity);
+}
 
 #endif

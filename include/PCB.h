@@ -7,21 +7,25 @@ using namespace std;
 
 class PCB{
 private:
-	string name;			// process name
+				
 	int priority;			// priotity
-	// int round;
+	int round;
 	int cpu_time;			// ticks since process established
 	int need_time;			// ticks still needed
 	int count;				// exact time used by the process
 	int timelet_count;		// ticks run in a timelet_count
 	// bool CurRunning;		// whether PCB is processed by CPU right now
-	char state;				// process state enum{'r = ready'. 'p = processing', 'f = finish'}
+	
 	
 public:
-	PCB * next_node;
-	PCB(string name, int priority, int need_time, PCB * next_node = NULL);
-	bool operator < (PCB p){
-		return (this -> round) < (p.round);
+	string name;			// process name
+	char state;				// process state enum{'r = ready'. 'p = processing', 'f = finish'}
+	PCB * next_node;		// ptr of next process
+	// PCB();
+	PCB(string name, int priority, int need_time, PCB * next_node);
+	~PCB();
+	bool operator < (PCB * p){
+		return (this -> round) < (p -> round);
 	}
 	bool tick();
 	bool run_the_process();
@@ -30,10 +34,9 @@ public:
 	char get_state();
 	bool append(PCB * next_node);
 };
-	
 
 
-PCB::PCB(string name, int priority, int need_time, PCB * next_node = NULL){
+PCB::PCB(string name, int priority, int need_time, PCB * next_node = nullptr){
 	this -> name = name;
 	this -> priority = priority;
 	this -> need_time = need_time;
@@ -45,14 +48,14 @@ PCB::PCB(string name, int priority, int need_time, PCB * next_node = NULL){
 }
 
 PCB::~PCB(){
-	delete [] this -> name;
-	delete [] this -> priority;
-	delete [] this -> need_time;
-	delete [] this -> next_node;
-	delete [] this -> cpu_time;
-	delete [] this -> timelet_count;
-	delete [] this -> count;
-	delete [] this -> state;
+	delete & (this -> name);
+	delete &(this -> priority);
+	delete &(this -> need_time);
+	delete &(this -> next_node);
+	delete &(this -> cpu_time);
+	delete &(this -> timelet_count);
+	delete &(this -> count);
+	delete &(this -> state);
 }
 
 bool PCB::run_the_process(){
@@ -66,29 +69,41 @@ bool PCB::run_the_process(){
 }
 
 bool PCB::yield_resouce(){
-	this -> CurRunning = false;
-	return true;
-}
-
-bool PCB::run_in_timelet(){
-	if (this -> CurRunning == false)	{
-		return false;
+	if(this -> state == 'p'){
+		if(this -> timelet_count == get_timelet()){
+			this -> state = 'f';
+			return true;
+		}
+		else{
+			this -> state = 'r';
+			return true;
+		}
 	}
 	else{
-		return true;
+		cerr << "The process is not running when required to yield timelet" << endl;
+		return false;
 	}
 }
+
+// bool PCB::run_in_timelet(){
+// 	if (this -> CurRunning == false){
+// 		return false;
+// 	}
+// 	else{
+// 		return true;
+// 	}
+// }
 
 bool PCB::tick(){
 	if(this -> state != 'f'){
 		// cpu_time increase in 'p' and in 'r'
 		this -> cpu_time ++;
 		if(this -> state == 'p'){
-			if(this -> timelet_count < timelet){
+			if(this -> timelet_count < get_timelet()){
 				this -> timelet_count ++;
 				this -> need_time --;
 				// when timelet is used up
-				if(this -> timelet_count == timelet){
+				if(this -> timelet_count == get_timelet()){
 					yield_resouce();
 					return true;
 				}
