@@ -5,6 +5,13 @@
 #include <iostream>
 using namespace std;
 
+
+/*
+ * This document describe the node of a process
+ * the action taken here as well as criteria for determining
+ * each situation is before the tick
+ */
+
 class PCB{
 private:
 				
@@ -98,6 +105,7 @@ bool PCB::yield_resouce(){
 bool PCB::tick(){
 	if(this -> state != 'f'){
 		// cpu_time increase in 'p' and in 'r'
+		// increase cpu_time does not alter any locks
 		this -> cpu_time ++;
 		if(this -> state == 'p'){
 			if(this -> timelet_count < get_timelet()){
