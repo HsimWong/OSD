@@ -40,7 +40,15 @@ public:
 	bool yield_resouce();
 	char get_state();
 	bool append(PCB * next_node);
+	string to_string();
 };
+
+string PCB::to_string(){
+	string str = "";
+	stringstream ss;
+	ss << this -> name << "\t" << this -> priority;
+	ss << "\t" << this -> 
+}
 
 
 PCB::PCB(string name, int priority, int need_time, PCB * next_node = nullptr){
@@ -139,6 +147,10 @@ char PCB::get_state(){
 bool PCB :: append(PCB * next_node){
 	this -> next_node = next_node;
 	return true;
+}
+
+string PCB::to_string(){
+	string ret = 
 }
 
 #endif

@@ -10,7 +10,7 @@ private:
 	Queue * ready;			// queue of ready processes
 	Queue * finished;		// queue of finished processes;
 	bool pro_push;			// if there is new processes to be pushed in
-
+	int round_count;
 public:
 	Manager();
 	~Manager();
@@ -23,6 +23,8 @@ void Manager::Manager(){
 	this -> ready = new Queue();
 	this -> processing = new Queue();
 	this -> finished = new Queue();
+	this -> round_count = 0;
+	
 }
 
 void Manager::new_process(PCB * p){
@@ -33,6 +35,7 @@ void Manager::new_process(PCB * p){
 
 void Manager::manager_run(){
 	while(true){
+		this -> round_count ++;
 		// No matter what happen, each process has to be ticked();
 		// First, check whether new process
 		// All processes has to be ticked()!!!
