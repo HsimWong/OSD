@@ -15,7 +15,7 @@ public:
 	Manager();
 	~Manager();
 	void new_process(PCB * p);
-	
+	void manager_run();
 
 };
 
@@ -29,18 +29,11 @@ void Manager::new_process(PCB * p){
 	this -> ready -> push(p);
 }
 
-void process(){
-	if(ready -> get_capacity() == 0){
-		cerr << "ready queue has 0 processes";
-	}
-	else{
-		cout << processing -> head -> name << "is processing" << endl;
-	}
-}
 
 Manager::manager_run(){
 	while(true){
 		PCB * temp;
+		// Check the ready queue;
 		for(int i = 0; i < ready -> get_capacity(); i++){
 			if(i == 0){
 				temp = ready -> head;
@@ -50,17 +43,16 @@ Manager::manager_run(){
 			}
 			temp -> tick();
 		}
-
-		for(int i = 0; i < processing -> get_capacity(); i++){
-			if(i == 0){
-				temp = ready -> head;
-			}
-			else{
-				temp = temp -> next_node;
-			}
+		// check the processing queue;
+		temp = processing -> head;		
+		if(temp -> get_state() != 'f' || this -> ready -> get_capacity() == 0){
+			temp -> run_the_process();
 			temp -> tick();
-
 		}
+		else if(temp -> get_state == 'f'){
+			
+		}
+
 	}
 }
 

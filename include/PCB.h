@@ -59,11 +59,12 @@ PCB::~PCB(){
 }
 
 bool PCB::run_the_process(){
-	if(this -> state == 'p' || this -> state == 'f'){
+	if(this -> state == 'f'){
 		return false;
 	}
 	else{
 		this -> state = 'p';
+		cout << this -> name << " is processing." << endl;
 		return true;
 	}
 }

@@ -24,12 +24,13 @@ public:
 
 Queue::Queue(){
 	this -> buff = this -> head = this -> tail = new PCB("NULL",0,0,0);
-	this -> tail -> append	
+	this -> tail -> append(this -> head);
 	this -> capacity = 0;
 }
 
 Queue::Queue(PCB * head){
 	this -> head = this -> buff = this -> tail = head;
+	this -> tail -> append(this -> head);
 	this -> capacity = 1;
 	return;
 }
@@ -41,9 +42,11 @@ bool Queue :: isEmpty(){
 bool Queue:: push(PCB * new_node){
 	if(this -> capacity == 0){
 		this -> head = this -> tail = new_node;
+		this -> tail -> append(this -> head);
 	}
 	else{
 		this -> tail -> append(new_node);
+		this -> tail = new_node;
 	}
 	this -> capacity ++;
 	return true;
@@ -55,17 +58,9 @@ bool Queue::pop(){
 		return false;
 	}
 	else{
-		// PCB * temp = this -> head;
-		// if(this -> capacity == 1){
-		// 	this -> head = this -> tail = this -> buff;
-		// }
-		// else{
-		// 	this -> head = temp -> next_node;
-		// }
-		// temp -> ~PCB();
-		// this -> capacity--;
 		PCB * temp = this -> head;
 		this -> head = this -> head -> next_node;
+		this -> tail -> append(this -> head);
 		this -> capacity --;
 		delete temp;
 		return true;
