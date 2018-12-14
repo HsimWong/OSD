@@ -12,6 +12,8 @@ private:
 	PCB * buff;
 	int capacity;
 public:
+	
+
 	Queue();
 	Queue(PCB * head);
 	~Queue();
@@ -47,7 +49,9 @@ bool Queue:: push(PCB * new_node){
 	else{
 		this -> tail -> append(new_node);
 		this -> tail = new_node;
+
 	}
+	this -> tail -> append(this -> head);
 	this -> capacity ++;
 	return true;
 }

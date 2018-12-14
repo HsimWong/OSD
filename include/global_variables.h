@@ -2,6 +2,7 @@
 #define GLOBAL_VARIABLES_H 
 // #ifndef timelet
 #include <iostream>
+#define INFINITY 65535
 using namespace std;
 
 int timelet;

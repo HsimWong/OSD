@@ -13,8 +13,7 @@ using namespace std;
  */
 
 class PCB{
-private:
-				
+private:		
 	int priority;			// priotity
 	int round;
 	int cpu_time;			// ticks since process established
@@ -22,14 +21,12 @@ private:
 	int count;				// exact time used by the process
 	int timelet_count;		// ticks run in a timelet_count
 	// bool CurRunning;		// whether PCB is processed by CPU right now
-	
-	
 public:
 	string name;			// process name
 	char state;				// process state enum{'r = ready'. 'p = processing', 'f = finish'}
 	PCB * next_node;		// ptr of next process
 	// PCB();
-	PCB(string name, int priority, int need_time, PCB * next_node);
+	PCB(string name, int priority, int need_time, int round);
 	~PCB();
 	bool operator < (PCB * p){
 		return (this -> round) < (p -> round);
@@ -40,22 +37,15 @@ public:
 	bool yield_resouce();
 	char get_state();
 	bool append(PCB * next_node);
-	string to_string();
+	string ToString();
 };
 
-string PCB::to_string(){
-	string str = "";
-	stringstream ss;
-	ss << this -> name << "\t" << this -> priority;
-	ss << "\t" << this -> 
-}
-
-
-PCB::PCB(string name, int priority, int need_time, PCB * next_node = nullptr){
+PCB::PCB(string name, int priority, int need_time, int round){
 	this -> name = name;
 	this -> priority = priority;
 	this -> need_time = need_time;
-	this -> next_node = next_node;
+	this -> next_node = NULL;
+	this -> round = round;
 	this -> cpu_time = 0;
 	this -> timelet_count = 0;
 	this -> count = 0;
@@ -74,10 +64,12 @@ PCB::~PCB(){
 }
 
 bool PCB::run_the_process(){
+	// if(this -> name) == ''
 	if(this -> state == 'f'){
 		return false;
 	}
 	else{
+
 		this -> state = 'p';
 		cout << this -> name << " is processing." << endl;
 		return true;
@@ -100,15 +92,6 @@ bool PCB::yield_resouce(){
 		return false;
 	}
 }
-
-// bool PCB::run_in_timelet(){
-// 	if (this -> CurRunning == false){
-// 		return false;
-// 	}
-// 	else{
-// 		return true;
-// 	}
-// }
 
 bool PCB::tick(){
 	if(this -> state != 'f'){
@@ -140,17 +123,20 @@ bool PCB::tick(){
 }
 
 char PCB::get_state(){
+
 	return this -> state;
 }
-
 
 bool PCB :: append(PCB * next_node){
 	this -> next_node = next_node;
 	return true;
 }
 
-string PCB::to_string(){
-	string ret = 
+string PCB::ToString(){
+	string str = "";
+	str = this -> name + '\t' + to_string(this -> state) + '\t' + to_string(priority) + '\t' + to_string(round)
+	+ '\t' + to_string(count) + '\t' + to_string(need_time) + '\n';
+	return str;
 }
 
 #endif

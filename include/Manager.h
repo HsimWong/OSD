@@ -1,8 +1,15 @@
 #include "PCB.h"
 #include <iostream>
+#include <fstream>
 #include "Queue.h"
-#include "gloval_variables.h"
+#include <ctime>
+#include "ProcessGen.h"
+// #include "gloval_variables.h"
 using namespace std;
+
+
+ProcessGen * pg = new ProcessGen();
+
 
 class Manager{
 private:
@@ -16,15 +23,18 @@ public:
 	~Manager();
 	void new_process(PCB * p);
 	void manager_run();
+	void process_listener();
 
 };
 
-void Manager::Manager(){
+Manager::Manager(){
 	this -> ready = new Queue();
 	this -> processing = new Queue();
 	this -> finished = new Queue();
 	this -> round_count = 0;
-	
+	PCB * insert = new PCB("ProcessListener", 1, INFINITY, round_count);		// a process for inserting new process
+	this -> ready -> push(insert);
+	return;
 }
 
 void Manager::new_process(PCB * p){
@@ -32,10 +42,19 @@ void Manager::new_process(PCB * p){
 	return;
 }
 
+void Manager::process_listener(){
+	srand((unsigned)time(0));
+	if()
+} 
 
 void Manager::manager_run(){
 	while(true){
-		this -> round_count ++;
+		/* Check if here is new process to be pushed in */
+		pg -> 
+
+
+
+
 		// No matter what happen, each process has to be ticked();
 		// First, check whether new process
 		// All processes has to be ticked()!!!
@@ -43,56 +62,62 @@ void Manager::manager_run(){
 		// Check the ready queue;
 		for(int i = 0; i < ready -> get_capacity(); i++){
 			if(i == 0){
-				temp = ready -> head;
+				temp = ready -> top();
 			}
 			else{
 				temp = temp -> next_node;
 			}
 			temp -> tick();
 		}
-		// check the processing queue;
-		temp = processing -> head;
+		// check the tick of processing queue;
+		temp = processing -> top();
 		temp -> tick();
-		// Check the finished queue;
+		// Check the tick() of finished queue;
 		for(int i = 0; i < finished -> get_capacity(); i++){
 			if(i == 0){
-                                temp = finished -> head;
-                        }
-                        else{
-                                temp = temp -> next_node;
-                        }
+				temp = finished -> top();
+			}
+			else{
+				temp = temp -> next_node;
+			}
 			temp -> tick();
 		}
 
 
-		// Check the state of the process in the processing queue
-		// and determine the next location of each processes
-		
+		/* 
+		 * Check the state of the process in the processing queue
+		 * and determine the next location of each processes
+		 *
+		 * Right now, process to be yield is still in the processing queue
+		 * when there is nothing to be processes, throw an error.
+		 */
+		// if(this -> ready -> get_capacity + this -> processing ->)
+		if(this -> processing -> isEmpty() == false){
+			temp = processing -> top();
+			if (temp -> get_state() == 'p'){
+				if (temp -> name == "ProcessListener"){
+					process_listener();
+				}
+			}
+			else if (temp -> get_state() == 'f'){
+				this -> finished -> push(temp);
+				this -> processing -> push(this -> ready -> top());
+				this -> processing -> pop();
+				this -> ready -> pop();
+			}
+			else if (temp -> get_state() == 'r'){
+				this -> processing -> push(this -> ready -> top());
+				this -> ready -> pop();
+				this -> ready -> push(this -> processing -> top());
+				this -> processing -> pop();
+				this -> processing -> top() -> run_the_process();
+			}
+		}
+		else{
+			cerr << "No process in under processing" << endl;
+		}
 
-		temp = processing -> head;
-		if (temp -> get_state() == 'p'){
-			continue;
-		}
-		else if (temp -> get_state() == 'f'){
-			this -> finished -> push(temp);
-			this -> processing -> push(this -> ready -> top());
-			this -> processing -> pop();
-			this -> ready -> pop();
-		}
-		else if (temp -> get_state() == 'r'){
-			this -> processing -> push(this -> ready -> top());
-			this -> ready -> pop();
-			this -> ready -> push(this -> processing -> top());
-			this -> processing -> pop();
-		}
-	//	if(temp -> get_state() != 'f' || this -> ready -> get_capacity() == 0){
-	//		temp -> run_the_process();
-	//		
-	//	}
-	//	else if(temp -> get_state == 'f'){
-	//		temp -> 	
-	//	}
-
+		this -> round_count ++;			// total count tick since boot
 	}
 }
 

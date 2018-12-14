@@ -1,13 +1,10 @@
-#include "Queue.h"
-#include "PCB.h"
-#include "global_variables.h"
-#include <iostream>
-using namespace std;
-
-
-int main(int argc, char const *argv[])
+#include<stdio.h>
+#include<stdlib.h>
+#include<ctime>
+int main()
 {
-	set_timelet(1000);
-	cout << get_timelet();
-	return 0;
+	// srand((unsigned)time(0));
+       for(int i=0;i<10;i++)
+             printf("%.9f\n",(double)rand() * rand()/RAND_MAX);
 }
+
