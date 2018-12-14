@@ -12,10 +12,8 @@ private:
 	PCB * buff;
 	int capacity;
 public:
-	
-
 	Queue();
-	Queue(PCB * head);
+	explicit Queue(PCB * head);
 	~Queue();
 	bool isEmpty();
 	bool push(PCB * new_node);
@@ -58,7 +56,7 @@ bool Queue:: push(PCB * new_node){
 
 bool Queue::pop(){
 	if(this -> isEmpty()){
-		cerr << "Error occured when pop the queue" << endl;
+		cerr << "Error occurred when pop the queue" << endl;
 		return false;
 	}
 	else{

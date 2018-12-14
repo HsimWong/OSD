@@ -25,6 +25,7 @@ public:
 
 ProcessGen::ProcessGen(){
 	this -> pro_gened = false;
+	this -> ind_count = 0;
 }
 
 PCB * ProcessGen::take_new_pro(int round){	
@@ -36,7 +37,10 @@ PCB * ProcessGen::take_new_pro(int round){
 	this -> process = new PCB(name, priority, need_time, round);
 	
 	cout << "Process named " << name << " is added into Ready queue" << endl;
+	this -> ind_count ++;
+
 	return this -> process;
+
 }
 
 

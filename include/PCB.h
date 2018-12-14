@@ -78,14 +78,23 @@ bool PCB::run_the_process(){
 
 bool PCB::yield_resouce(){
 	if(this -> state == 'p'){
-		if(this -> timelet_count == get_timelet()){
+		// timelet up
+		if(this -> need_time != 0) {
+			if (this->timelet_count == 0) {
+				this->state = 'r';
+				return true;
+			}
+			else{
+				cerr << "Called yield_resource() when still have need_time";
+				return false;
+			}
+		}
+		else{
 			this -> state = 'f';
 			return true;
 		}
-		else{
-			this -> state = 'r';
-			return true;
-		}
+
+
 	}
 	else{
 		cerr << "The process is not running when required to yield timelet" << endl;
@@ -103,8 +112,10 @@ bool PCB::tick(){
 				this -> timelet_count ++;
 				this -> need_time --;
 				// when timelet is used up
-				if(this -> timelet_count == get_timelet() - 1){
+				if(this -> timelet_count == get_timelet()){
+					this -> timelet_count = 0;
 					yield_resouce();
+
 					return true;
 				}
 			}
@@ -134,10 +145,10 @@ bool PCB :: append(PCB * next_node){
 
 string PCB::ToString(){
 	string str = "";
-	str = this -> name + '\t' + to_string(this -> state)
-	+ '\t' + to_string(this -> priority) + '\t' + to_string(this -> round)
-	+ '\t' + to_string(this -> count) + '\t' + to_string(this -> need_time)
-	+ '\n';
+	str = this -> name + "\t" + to_string(this -> state)
+	+ "\t" + to_string(this -> priority) + "\t" + to_string(this -> round)
+	+ "\t" + to_string(this -> count) + "\t" + to_string(this -> need_time)
+	+ "\n";
 	return str;
 }
 
