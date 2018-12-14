@@ -24,6 +24,7 @@ public:
 	void new_process(PCB * p);
 	void manager_run();
 	void process_listener();
+	string ToString();
 
 };
 
@@ -42,19 +43,20 @@ void Manager::new_process(PCB * p){
 	return;
 }
 
+
+// Insert new process to the ready queue at random time
 void Manager::process_listener(){
 	srand((unsigned)time(0));
-	if()
+	if((double)rand() / RAND_MAX < 0.1){
+		this -> ready -> push(pg -> take_new_pro(this -> round_count));
+	}
+	return;
 } 
 
 void Manager::manager_run(){
 	while(true){
 		/* Check if here is new process to be pushed in */
-		pg -> 
-
-
-
-
+		process_listener();
 		// No matter what happen, each process has to be ticked();
 		// First, check whether new process
 		// All processes has to be ticked()!!!
@@ -119,6 +121,30 @@ void Manager::manager_run(){
 
 		this -> round_count ++;			// total count tick since boot
 	}
+
+}
+
+string Manager::ToString(){
+	string str = "";
+	PCB * ptr = this -> processing -> top();
+	str = "*************************************\nProcessing Queue info\n";
+	for(int i = 0; i < this -> processing -> get_capacity(); i++){
+		str += ptr -> ToString();
+		ptr = ptr -> next_node;
+	}
+	str += "***********************************\nReady Queue info\n";
+	ptr = this -> ready -> top;
+	for(int i = 0; i < this -> processing -> get_capacity(); i++){
+		str += ptr -> ToString();
+		ptr = ptr -> next_node;
+	}
+	str += "***********************************\nFinished Queue info\n";
+	ptr = this -> finished -> top;
+	for (int i = 0; i < this -> finished -> get_capacity(); i++){
+		str += ptr -> ToString();
+		ptr = ptr -> next_node;
+	}
+	return str;
 }
 
 

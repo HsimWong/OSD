@@ -134,8 +134,8 @@ bool PCB :: append(PCB * next_node){
 
 string PCB::ToString(){
 	string str = "";
-	str = this -> name + '\t' + to_string(this -> state) + '\t' + to_string(priority) + '\t' + to_string(round)
-	+ '\t' + to_string(count) + '\t' + to_string(need_time) + '\n';
+	str = this -> name + '\t' + to_string(this -> state) + '\t' + to_string(this -> priority) + '\t' + to_string(this -> round)
+	+ '\t' + to_string(this -> count) + '\t' + to_string(this -> need_time) + '\n';
 	return str;
 }
 
