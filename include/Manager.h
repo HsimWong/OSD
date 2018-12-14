@@ -48,14 +48,18 @@ void Manager::new_process(PCB * p){
 void Manager::process_listener(){
 	srand((unsigned)time(0));
 	if((double)rand() / RAND_MAX < 0.1){
-		this -> ready -> push(pg -> take_new_pro(this -> round_count));
+		this -> ready -> push(pg -> take_new_pro(this -> round_count));	
+		// cout << "Process named " <<name << " is added into Ready queue" << endl;
 	}
 	return;
 } 
 
 void Manager::manager_run(){
 	while(true){
-		/* Check if here is new process to be pushed in */
+		/* Check if here is new process to be pushed in 
+		 * In Every tick, there is possibility that a process
+		 * is added into the queue for ready process		
+		*/
 		process_listener();
 		// No matter what happen, each process has to be ticked();
 		// First, check whether new process
@@ -133,13 +137,13 @@ string Manager::ToString(){
 		ptr = ptr -> next_node;
 	}
 	str += "***********************************\nReady Queue info\n";
-	ptr = this -> ready -> top;
+	ptr = this -> ready -> top();
 	for(int i = 0; i < this -> processing -> get_capacity(); i++){
 		str += ptr -> ToString();
 		ptr = ptr -> next_node;
 	}
 	str += "***********************************\nFinished Queue info\n";
-	ptr = this -> finished -> top;
+	ptr = this -> finished -> top();
 	for (int i = 0; i < this -> finished -> get_capacity(); i++){
 		str += ptr -> ToString();
 		ptr = ptr -> next_node;

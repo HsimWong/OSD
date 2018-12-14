@@ -27,13 +27,15 @@ ProcessGen::ProcessGen(){
 	this -> pro_gened = false;
 }
 
-PCB * ProcessGen::take_new_pro(int round){
+PCB * ProcessGen::take_new_pro(int round){	
 	string name = "Process_" + to_string(this -> ind_count);
 	srand((unsigned)time(0));
 	int priority = MIN + (int)MAX * rand() / (RAND_MAX + 1);
 	int need_time = MIN + (int)MAX * rand() / (RAND_MAX + 1);
 	// int round controlling is defined in file Manager.h
 	this -> process = new PCB(name, priority, need_time, round);
+	
+	cout << "Process named " << name << " is added into Ready queue" << endl;
 	return this -> process;
 }
 

@@ -103,7 +103,7 @@ bool PCB::tick(){
 				this -> timelet_count ++;
 				this -> need_time --;
 				// when timelet is used up
-				if(this -> timelet_count == get_timelet()){
+				if(this -> timelet_count == get_timelet() - 1){
 					yield_resouce();
 					return true;
 				}
