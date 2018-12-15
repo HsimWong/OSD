@@ -131,9 +131,9 @@ void Manager::manager_run(){
 		if(!this -> processing -> empty()){
 			temp = processing -> front();
 			if (temp -> get_state() == 'p'){
-				if (temp -> name == "ProcessListener"){
-					process_listener();
-				}
+				// if (temp -> name == "ProcessListener"){
+				// 	process_listener();
+				// }
 //				cout << temp -> ToString() << endl;
 			}
 			else if (temp -> get_state() == 'f'){

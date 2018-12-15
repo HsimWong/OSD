@@ -133,21 +133,16 @@ void write(string filename, int length){
 }
 
 void insert(string filename, int istpt){
+
     int write_ptr = 0;
+
+    int scan_ptr = filespace[write_ptr].start;
     for(int i = 0; i < fileNum; i++){
         if(filespace[i].name == filename){
+
             write_ptr = i;
             break;
         }
-    }
-    if (write_ptr == 0){
-        cout << "No such file" << endl;
-        return;
-    }
-    int scan_ptr = filespace[write_ptr].start;
-    for(int i = 0; i < istpt - 1; i++){
-        scan_ptr = FAT[scan_ptr];
-
     }
     for(int j = 0; j < capacity; j++){
         if(FAT[j] == 0){
@@ -160,6 +155,10 @@ void insert(string filename, int istpt){
     freespace--;
     cout << filename << filespace[write_ptr].length << endl;
 
+    for(int i = 0; i < istpt - 1; i++){
+        scan_ptr = FAT[scan_ptr];
+
+    }
 
 }
 
@@ -181,31 +180,42 @@ int main(int argc, char const *argv[])
         printf("            4.Show FAT      5.Search Document   6.Search Block      \n");
 
         printf("      *********************************************************\n");
-
+        cout << endl;
         int cmd;
         cout << "CHoose one option" << endl;
+        cout.flush();
         cin >> cmd;
+        cin.sync();
         int is = 0;
         char * temp;
         switch(cmd){
             case 0:exit(0);
-            case 1: cout << "Filename:" << endl;
+            case 1: printf("FileName:\n");
 
 //                scanf("%c", temp);
 //                filename = temp;
-////                getline(cin, filename);
-                 scanf("%s", filename);
+                cout.flush();
+                cin.sync();
+                getline(cin, filename);
+//                 scanf("%s", filename);
                 cout << "length:" << endl;
+                cout.flush();
+                cin.sync();
                 cin >> length;
+                cin.sync();
                 write(filename, length);
                 break;
             case 2: cout << "Filename:" << endl;
-                scanf("%s", &temp);
-                filename = temp;
-
+                cout.flush();
+                cin.sync();
+//                scanf("%s", &temp);
+//                filename = temp;
+                getline(cin, filename);
                 cout << "index insert" << endl;
-
+                cout.flush();
+                cin.sync();
                 cin >> is;
+                cin.sync();
                 insert(filename, is);
                 break;
             case 3: print_file_info();
@@ -213,13 +223,22 @@ int main(int argc, char const *argv[])
             case 4: printFAT();
                 break;
             case 5: cout << "Filename" << endl;
-                scanf("%s", &temp);
+                cin.sync();
+                cout.flush();
+                cin.sync();
+                getline(cin, filename);
+//                scanf("%s", &temp);
+                cin.sync();
                 filename = temp;
                 search_file(filename);
                 break;
             case 6: cout << "Check index" << endl;
                 int searchpt;
+                cout.flush();
+                cin.sync();
                 cin >> searchpt;
+                cin.sync();
+                cout.flush();
                 search_point(searchpt);
                 break;
 
