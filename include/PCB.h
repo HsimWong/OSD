@@ -15,28 +15,30 @@ using namespace std;
 class PCB{
 private:		
 	int priority;			// priotity
-	int round;
 	int cpu_time;			// ticks since process established
 	int need_time;			// ticks still needed
 	int count;				// exact time used by the process
 	int timelet_count;		// ticks run in a timelet_count
 	// bool CurRunning;		// whether PCB is processed by CPU right now
 public:
+	int round;				// Which round should the process be pushed in ready
 	string name;			// process name
 	char state;				// process state enum{'r = ready'. 'p = processing', 'f = finish'}
 	PCB * next_node;		// ptr of next process
 	// PCB();
 	PCB(string name, int priority, int need_time, int round);
 	~PCB();
-	bool operator < (PCB * p){
-		return (this -> round) < (p -> round);
+	bool operator < (PCB p)const{
+		return (this -> round) < (p.round);
 	}
 	bool tick();
+	bool tick_fcfs();
 	bool run_the_process();
 	bool run_in_timelet();
 	bool yield_resouce();
 	char get_state();
 	bool append(PCB * next_node);
+	// short cmp_round(const PCB * a, const PCB * b);
 	string ToString();
 };
 
@@ -64,14 +66,12 @@ PCB::~PCB(){
 }
 
 bool PCB::run_the_process(){
-	// if(this -> name) == ''
 	if(this -> state == 'f'){
 		return false;
 	}
 	else{
-
 		this -> state = 'p';
-		cout << this -> name << " is processing." << endl;
+		// cout << this -> name << " is processing." << endl;
 		return true;
 	}
 }
@@ -93,8 +93,6 @@ bool PCB::yield_resouce(){
 			this -> state = 'f';
 			return true;
 		}
-
-
 	}
 	else{
 		cerr << "The process is not running when required to yield timelet" << endl;
@@ -104,14 +102,14 @@ bool PCB::yield_resouce(){
 
 bool PCB::tick(){
 	if(this -> state != 'f'){
-		// cpu_time increase in 'p' and in 'r'
-		// increase cpu_time does not alter any locks
+		/* cpu_time increase in 'p' and in 'r'
+		 * increase cpu_time does not alter any locks */
 		this -> cpu_time ++;
 		if(this -> state == 'p'){
 			if(this -> timelet_count < get_timelet()){
 				this -> timelet_count ++;
 				this -> need_time --;
-				// when timelet is used up
+				/* when timelet is used up*/
 				if(this -> timelet_count == get_timelet()){
 					this -> timelet_count = 0;
 					yield_resouce();
@@ -126,11 +124,27 @@ bool PCB::tick(){
 			}
 		}
 		return true;
-
 	}
 	else{
 		return true;
 	}
+}
+
+bool PCB::tick_fcfs(){
+	if(this -> state != 'f'){
+		this -> cpu_time ++;
+		if(this -> state == 'p'){
+			this -> count ++;
+			this -> timelet_count;
+			this -> need_time --;
+			if(this -> need_time == 0){
+				this -> state = 'f';
+			}
+		}
+		/* next state of 'r' process is realised outside
+		 * after tick() */
+	}
+	
 }
 
 char PCB::get_state(){

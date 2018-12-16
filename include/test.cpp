@@ -1,11 +1,14 @@
-#include "Manager.h"
-#include "ProcessGen.h"
 #include <iostream>
-using namespace std;  
+#include "PCB.h"
+#include <algorithm>
+#include <queue>
+using namespace std;
 
-int main(int argc, char const *argv[])
-{
-      Manager * mg = new Manager();
-      mg -> manager_run();
-      return 0;
+int main(){
+      // priority_queue<PCB *> * a = new priority_queue<PCB *>();
+      PCB * proa = new PCB("proa", 1, 1, 100);
+      PCB * proc = new PCB("proc", 1, 1, 211);
+      
+      PCB * prob = new PCB("prob", 1, 1, 12);
+     cout << (*proa < *prob);
 }
