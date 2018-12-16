@@ -7,7 +7,7 @@ using namespace std;
 
 const int capacity = 100;       // Capacity of the form
 const int doc_num_max = 20;     // Maximum capacity of #documents
-int freespace = 100;                  // Variable for documenting #freespace
+int freespace = 100;            // Variable for documenting #freespace
 int fileNum = 0;
 /*
  * Description of a file
@@ -35,7 +35,10 @@ void print_file_info(){
 void printFAT(){
     cout << "Free block Number: " << freespace<< endl;
     for(int i = 0; i < capacity; i++){
-        cout << "Block No. " << i << "\t" << FAT[i] << endl;
+        cout << FAT[i] << "\t";
+        if(i % 10 == 9){
+        	cout << endl;
+        }
     }
     return;
 }
@@ -192,12 +195,10 @@ int main(int argc, char const *argv[])
             case 0:exit(0);
             case 1: printf("FileName:\n");
 
-//                scanf("%c", temp);
-//                filename = temp;
                 cout.flush();
                 cin.sync();
                 getline(cin, filename);
-//                 scanf("%s", filename);
+
                 cout << "length:" << endl;
                 cout.flush();
                 cin.sync();
@@ -208,8 +209,6 @@ int main(int argc, char const *argv[])
             case 2: cout << "Filename:" << endl;
                 cout.flush();
                 cin.sync();
-//                scanf("%s", &temp);
-//                filename = temp;
                 getline(cin, filename);
                 cout << "index insert" << endl;
                 cout.flush();
@@ -227,7 +226,6 @@ int main(int argc, char const *argv[])
                 cout.flush();
                 cin.sync();
                 getline(cin, filename);
-//                scanf("%s", &temp);
                 cin.sync();
                 filename = temp;
                 search_file(filename);

@@ -73,15 +73,13 @@ Manager::Manager(){
 	 * Complexity: n^2.
 	 */
 	for(int i = 0; i < this -> pro_num; i++){
-		// array[i] = temp;
 		PCB * temp_min = array[i];
-//		int min_index = 0;
 		for(int j = i + 1; j < pro_num; j++){
 			if(array[j] -> round < array[i] -> round){
 				temp_min = array[j];
 				array[j] = array[i];
 				array[i] = temp_min;
-//				min_index = j;
+
 			}
 		}
 		if(!this -> process_list -> empty()){
@@ -89,11 +87,7 @@ Manager::Manager(){
 		}
 		this -> process_list -> push(temp_min);
 	}
-
 	cout << pro_num << "processes were added into system" << endl;
-	
-
-
 }
 
 void Manager::project_adder(){
@@ -118,18 +112,15 @@ void Manager::project_adder(){
 				break;
 			}
 		}
-
-
-
 	}
 }
 
 void Manager::manager_run_fcfs(){
 	/* To avoid the break down of the procedure, there has to be a process
 	 * for taking up spaces*/
-	this -> ready -> push(new PCB("init_pro", 1, min(get_timelet(), process_list -> front()->round), 0));
+	cout << "fcfs in processing" << endl;
 	while(true){
-		
+		/* exit if pro_l, pro_ing, ready are empty */
 		if(this -> process_list -> empty() && this -> processing -> empty() && this -> ready -> empty()){
 			break;
 		}
@@ -153,12 +144,12 @@ void Manager::manager_run_fcfs(){
 			else{
 				temp = temp -> next_node;
 			}
-			temp -> tick();
+			temp -> tick_fcfs();
 		}
 		/* check the tick of processing queue;*/
 		if(this -> processing -> size() != 0){
 			temp = this -> processing -> front();
-			temp -> tick();
+			temp -> tick_fcfs();
 		}
 		/* Check the tick() of finished queue;*/
 		for(int i = 0; i < this -> finished -> size(); i++){
@@ -171,7 +162,7 @@ void Manager::manager_run_fcfs(){
 			else{
 				temp = temp -> next_node;
 			}
-			temp -> tick();
+			temp -> tick_fcfs();
 		}
 
 		/* Determining the next position of relevant processes
@@ -181,30 +172,49 @@ void Manager::manager_run_fcfs(){
 		 * Note: status of processes in ready queue is altered here
 		 * using PCB::run_the_process(), then altered process will be
 		 * pushed into ```processing``` queue */
-		
-		if(this -> processing -> front() -> state == 'f'){
-			this -> finished -> push(this -> processing -> front());
-			this -> processing -> push(this -> ready -> front());
-			this -> processing -> pop();
-			this -> ready -> pop();
-			this -> processing -> front() -> run_the_process();
+		if(!this -> processing -> empty()){
+			/* The processing process whose state == 'f' now is to be pushed
+			 * into the finished queue. If ready is not empty, its front will
+			 * be pushed into processing queue.
+			 * When ready is empty, do nothing*/
+			if(this -> processing -> front() -> state == 'f'){
+				if(!this -> ready -> empty()){
+					this -> processing -> back() -> append(this -> ready -> front());
+					this -> processing -> push(this -> ready -> front());
+					this -> ready -> pop();
+				}
+				if(!this -> finished -> empty()){
+					this -> finished -> back() -> append(this -> processing -> front());
+				}
+				this -> finished -> push(this -> processing -> front());
+				this -> processing -> pop();
+				if(!this -> processing -> empty()){
+					this -> processing -> front() -> run_the_process();
+				}
+//
+			}
 		}
+		else{
+			cerr << "No process is under processing" << endl;
+		}
+//		cout << this -> ToString() << endl;
 		/* Nothing is to be done if state == 'r' */
+		this -> ToString();
+		cout << endl;
 		this -> round_count ++;			// total count tick since boot
-
 	}	
 }
 
 void Manager::manager_run_timelet(){
 	/* To avoid the break down of the procedure, there has to be a process
 	 * for taking up spaces*/
-//	this -> ready -> push(new PCB("init_pro", 1, min(get_timelet(), process_list -> front()->round), 0));
 	int cnt = 0;
+	this -> round_count = 0;
 	while(cnt < 1){
 		if(this -> process_list -> empty() && this -> processing -> empty() && this -> ready -> empty()){
 			break;
 		}
-		cout << this -> round_count << endl;
+//		cout << this -> round_count << endl;
 		if(this -> round_count == 9){
 			cout << "";
 			cin.sync();
@@ -230,12 +240,12 @@ void Manager::manager_run_timelet(){
 			}
 			temp -> tick();
 		}
-		// check the tick of processing queue;
+		/* check the tick of processing queue;*/
 		if(processing -> size() != 0){
 			temp = processing -> front();
 			temp -> tick();
 		}
-		// Check the tick() of finished queue;
+		/* Check the tick() of finished queue;*/
 		for(int i = 0; i < finished -> size(); i++){
 			if(i == 0){
 				if(finished -> size() == 0){
@@ -248,7 +258,6 @@ void Manager::manager_run_timelet(){
 			}
 			temp -> tick();
 		}
-
 
 		/* Check the state of the process in the processing queue
 		 * and determine the next location of each processes
@@ -280,7 +289,7 @@ void Manager::manager_run_timelet(){
 				}
 				/* When ready queue is empty, break the cycle, stop ticking*/
 				else{
-					break;
+					this->processing -> pop();
 				}
 			}
 			else if (temp -> get_state() == 'r'){
@@ -301,35 +310,62 @@ void Manager::manager_run_timelet(){
 			cerr << "No process in under processing" << endl;
 		}
 		this -> round_count ++;			// total count tick since boot
-		// cout << this ->ToString() << endl;
+		this -> ToString();
+//		cout << this -> ToString() << endl;
 	}
+
 }
 
-string Manager::ToString(){
-	string str = "";
-	PCB * ptr = this -> processing -> front();
-	str = "*************************************\nProcessing Queue info\n";
-	for(int i = 0; i < this -> processing -> size(); i++){
-		str += ptr -> ToString();
-		ptr = ptr -> next_node;
+string Manager::ToString() {
+	cout << this -> round_count << endl;
+	cout << "-------------------------------------------" << endl;
+	cout << "|Name	|CPU Time	|Timelet Count	|Time Need	|priority	|Status" << endl;
+	cout << "----------------------------------------------" << endl;
+	PCB * temp;
+	cout <<"queue<PCB *> * ready" << endl;
+	for(int i = 0; i < ready -> size(); i++){
+		if(i == 0){
+			temp = ready -> front();
+		}
+		else{
+			temp = temp -> next_node;
+		}
+		cout << temp->name<<"\t"<<temp->count<<"\t"<<temp->timelet_count<<"\t"<<temp->need_time<<"\t";
+		cout << temp->priority<<"\t"<<temp->state<<endl;
 	}
-	str += "***********************************\nReady Queue info\n";
-	ptr = this -> ready -> front();
-	for(int i = 0; i < this -> processing -> size(); i++){
-		str += ptr -> ToString();
-		ptr = ptr -> next_node;
+	cout << "-------------------------------------------------"<<endl;
+	cout <<"queue<PCB *> * processing" << endl;
+	for(int i = 0; i < processing -> size(); i++){
+		if(i == 0){
+			temp = processing -> front();
+		}
+		else{
+			temp = temp -> next_node;
+		}
+		cout << temp->name<<"\t"<<temp->count<<"\t"<<temp->timelet_count<<"\t"<<temp->need_time<<"\t";
+		cout << temp->priority<<"\t"<<temp->state<<endl;
 	}
-	str += "***********************************\nFinished Queue info\n";
-	ptr = this -> finished -> front();
-	for (int i = 0; i < this -> finished -> size(); i++){
-		str += ptr -> ToString();
-		ptr = ptr -> next_node;
+	cout << "-------------------------------------------------"<< endl;
+	cout <<"queue<PCB *> * finished" << endl;
+	for(int i = 0; i < this -> finished -> size(); i++){
+		if(i == 0){
+			temp = this -> finished -> front();
+		}
+		else{
+			temp = temp -> next_node;
+		}
+		cout << temp->name<<"\t"<<temp->count<<"\t"<<temp->timelet_count<<"\t"<<temp->need_time<<"\t";
+		cout << temp->priority<<"\t"<<temp->state<<endl;
 	}
-	return str;
+
+	cout << endl;
+	cout << endl;
+
+
+
 }
 
 Manager::~Manager() {
-
 }
 
 
