@@ -1,11 +1,11 @@
+#ifndef MANAGER_H
+#define MANAGER_H
+
 #include "PCB.h"
 #include <iostream>
-#include "Queue.h"
 #include <queue>
-#include <ctime>
-#include "ProcessGen.h"
-#include <windows.h>
 #include <algorithm>
+#include <Windows.h>
 #include "global_variables.h"
 using namespace std;
 class Manager{
@@ -37,18 +37,20 @@ Manager::Manager(){
 	cin.sync();
 	int t = 0;
 	cin >> t;
+	cin.sync();
 	set_timelet(t);
 
 	/* This block requires users to input the preliminary process list */
 	PCB* array[10];
 	cout << "How many processes do you want to add to the list? \nNo more than 10" << endl;
 	cin.sync();
-	// int pro_num = 0;
-	cin >> this -> pro_num;
+	 int pro = 0;
+	cin >> pro;
+	this -> pro_num = pro;
 	for (int i = 0; i < pro_num; i++){
 		string nm;
 		int pri, nt, rnd;
-		cout << "Name of the process:" << endl;
+		cout << "Name of the process " << i << ":"<< endl;
 		cin.sync();
 		getline(cin, nm);
 		cout << "Process " << nm << "'s priority (int):" << endl;
@@ -63,7 +65,6 @@ Manager::Manager(){
 		PCB * tmp = new PCB(nm, pri, nt, rnd);
 		array[i] = tmp;
 	}
-
 	/* No realization has been found to sort elements in queue
 	 * A pop sort is realized here. 
 	 * elements will be pushed into the queue one by one.
@@ -74,14 +75,17 @@ Manager::Manager(){
 	for(int i = 0; i < this -> pro_num; i++){
 		// array[i] = temp;
 		PCB * temp_min = array[i];
-		int min_index = 0;
+//		int min_index = 0;
 		for(int j = i + 1; j < pro_num; j++){
 			if(array[j] -> round < array[i] -> round){
 				temp_min = array[j];
 				array[j] = array[i];
 				array[i] = temp_min;
-				min_index = j;
+//				min_index = j;
 			}
+		}
+		if(!this -> process_list -> empty()){
+			this -> process_list -> back() -> append(temp_min);
 		}
 		this -> process_list -> push(temp_min);
 	}
@@ -93,20 +97,43 @@ Manager::Manager(){
 }
 
 void Manager::project_adder(){
-	if(this -> process_list -> front() -> round == this -> round_count){
-		this -> ready -> back() -> append(this -> process_list -> front());
-		this -> ready -> push(this -> process_list -> front());
-		this -> process_list -> pop();
+	if(!this -> process_list -> empty()){
+		/* Loop here to ensure that processes with same round# can be added simultaneously*/
+		for(int i = 0; i < (int)(this -> process_list -> size()); i++){
+			if(this -> process_list -> front() -> round == this -> round_count){
+				if(this -> ready -> empty() && this -> processing -> empty()){
+					this -> processing -> push(this -> process_list -> front());
+					this -> process_list -> pop();
+					this -> processing -> front() -> run_the_process();
+				}
+				else{
+					if(!this -> ready -> empty()){
+						this -> ready -> back() -> append(this -> process_list -> front());
+					}
+					this -> ready -> push(this -> process_list -> front());
+					this -> process_list -> pop();
+				}
+			}
+			else{
+				break;
+			}
+		}
+
+
+
 	}
 }
 
 void Manager::manager_run_fcfs(){
+	/* To avoid the break down of the procedure, there has to be a process
+	 * for taking up spaces*/
+	this -> ready -> push(new PCB("init_pro", 1, min(get_timelet(), process_list -> front()->round), 0));
 	while(true){
 		
-		if(!this -> finished -> empty() && this -> processing -> empty() && this -> ready -> empty()){
+		if(this -> process_list -> empty() && this -> processing -> empty() && this -> ready -> empty()){
 			break;
 		}
-							  Sleep(1000);
+		Sleep(1000);
 		/* Check if here is new process to be pushed in 
 		 * In Every tick, there is possibility that a process
 		 * is added into the queue for ready process		
@@ -169,10 +196,18 @@ void Manager::manager_run_fcfs(){
 }
 
 void Manager::manager_run_timelet(){
+	/* To avoid the break down of the procedure, there has to be a process
+	 * for taking up spaces*/
+//	this -> ready -> push(new PCB("init_pro", 1, min(get_timelet(), process_list -> front()->round), 0));
 	int cnt = 0;
 	while(cnt < 1){
-		if(this -> ready -> empty() && this -> processing -> empty()){
+		if(this -> process_list -> empty() && this -> processing -> empty() && this -> ready -> empty()){
 			break;
+		}
+		cout << this -> round_count << endl;
+		if(this -> round_count == 9){
+			cout << "";
+			cin.sync();
 		}
 		Sleep(1000);
 		/* Check if here is new process to be pushed in 
@@ -229,15 +264,19 @@ void Manager::manager_run_timelet(){
 			}
 			else if (temp -> get_state() == 'f'){
 				/* Append current process to finished list */
-				this -> finished -> back() -> append(temp);
+				if(!this -> finished -> empty()){
+					this -> finished -> back() -> append(temp);
+				}
 				this -> finished -> push(temp);
 				/* When there's process wating*/
 				if(!this -> ready -> empty()){
-					this -> processing -> back() -> append(this -> ready -> front());
+					if(!this -> processing -> empty()){
+						this -> processing -> back() -> append(this -> ready -> front());
+					}
 					this -> processing -> push(this -> ready -> front());
 					this -> processing -> pop();
 					this -> ready -> pop();
-					this -> ready -> front() -> run_the_process();
+					this -> processing -> front() -> run_the_process();
 				}
 				/* When ready queue is empty, break the cycle, stop ticking*/
 				else{
@@ -246,7 +285,7 @@ void Manager::manager_run_timelet(){
 			}
 			else if (temp -> get_state() == 'r'){
 				if (!this -> ready -> empty()){
-					this -> processing -> back -> append(this -> ready -> front());
+					this -> processing -> back() -> append(this -> ready -> front());
 					this -> processing -> push(this -> ready -> front());
 					this -> ready -> push(this -> processing -> front());
 					this -> ready -> pop();
@@ -289,8 +328,12 @@ string Manager::ToString(){
 	return str;
 }
 
+Manager::~Manager() {
+
+}
 
 
+#endif
 
 
 
