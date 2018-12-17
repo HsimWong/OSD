@@ -1,6 +1,7 @@
 #include <string>
 #include <cstdio>
 #include <iostream>
+#include <vector>
 #define FDF -2
 #define FFF -1
 using namespace std;
@@ -99,8 +100,6 @@ void write(string filename, int length){
         cout << "Space is not enough" << endl;
         return;
     }
-
-
     filespace[fileNum].name = filename;
     filespace[fileNum].length = length;
 
@@ -135,37 +134,101 @@ void write(string filename, int length){
 
 }
 
-void insert(string filename, int istpt){
-
-    int write_ptr = 0;
-
-    int scan_ptr = filespace[write_ptr].start;
+void del_file(string filename){
+    int file_ind;
+    bool found = false;
     for(int i = 0; i < fileNum; i++){
         if(filespace[i].name == filename){
-
-            write_ptr = i;
+            found = true;
+            file_ind = i;
             break;
         }
     }
-    for(int j = 0; j < capacity; j++){
-        if(FAT[j] == 0){
-            FAT[j] = FAT[scan_ptr];
-            FAT[scan_ptr] = j;
-            break;
+    if(found){
+        int del_ptr = filespace[file_ind].start;
+        
+        for(int i = 0; i < filespace[file_ind].length; i++){
+            
+            int nxt = FAT[del_ptr];
+            FAT[del_ptr] = 0;
+            del_ptr = nxt;
+
+            delete & del_ptr;
         }
+        freespace += filespace[file_ind].length;
     }
-    filespace[write_ptr].length++;
-    freespace--;
-    cout << filename << filespace[write_ptr].length << endl;
-
-    for(int i = 0; i < istpt - 1; i++){
-        scan_ptr = FAT[scan_ptr];
-
+    else{
+        cout << "No such file named" << filename << endl;
     }
 
+    for(int i = file_ind; i < fileNum; i++){
+        filespace[i] = filespace[i + 1];
+        fileNum--;
+    }
 }
 
-// void parser(string cmd, )
+void insert(string filename, int istpt, int ist_length){
+    int file_space_ind = 0;
+    bool found = false;
+    if(ist_length > freespace){
+        cout << "Space not enough" << endl;
+        return;
+    }
+    for(int i = 0; i < fileNum; i++){
+        if(filespace[i].name == filename){
+            file_space_ind = i;
+            found = true;
+            break;
+        }
+    }
+
+    if(found){
+        
+        int cut_in = filespace[file_space_ind].start;
+        for(int i = 0; i < ist_length - 1; i++){
+            cut_in = FAT[cut_in];
+        }
+
+        int fat_ind_before = cut_in;
+        int fat_ind_after = FAT[cut_in];
+
+        int write_ptr = 0;
+
+        for(int i = 2; i < capacity ;i++){  //存文件
+            if(FAT[i]==0){
+                filespace[file_space_ind].start=i;//首个空闲块为文件开始块
+                write_ptr=i;
+                FAT[write_ptr]=FFF;
+                break;
+            }
+        }
+        FAT[fat_ind_before] = write_ptr;
+
+        for(int i = 0; i < ist_length - 1; i++){
+            for(int j = write_ptr; j < capacity; j++){
+                if(FAT[j] == 0){
+                    cout << "found empty block at " << j << endl;
+                    FAT[write_ptr] = j;
+                    write_ptr = j;
+                    FAT[write_ptr] = FFF;
+                    // FAT[write_ptr] = FFF;
+                    break;
+                }
+            }
+        }
+        FAT[write_ptr] = fat_ind_after;
+
+
+
+
+
+    }
+    else{
+        cerr << "No Such File" << endl;
+        return;
+    }
+}
+
 
 int main(int argc, char const *argv[])
 {
@@ -178,11 +241,12 @@ int main(int argc, char const *argv[])
     int length;
 
     while(true){
-        printf("                            0.exit                      \n");
-        printf("            1.write         2.Insert            3.Show documents     \n");
-        printf("            4.Show FAT      5.Search Document   6.Search Block      \n");
+        cout << endl << endl << endl;
+        cout << ("                         0.exit      7.delete file                \n");
+        cout << ("            1.write         2.Insert            3.Show documents     \n");
+        cout << ("            4.Show FAT      5.Search Document   6.Search Block      \n");
 
-        printf("      *********************************************************\n");
+        cout << ("      *********************************************************\n");
         cout << endl;
         int cmd;
         cout << "CHoose one option" << endl;
@@ -194,57 +258,63 @@ int main(int argc, char const *argv[])
         switch(cmd){
             case 0:exit(0);
             case 1: printf("FileName:\n");
+                    cout.flush();
+                    cin.sync();
+                    getline(cin, filename);
 
-                cout.flush();
-                cin.sync();
-                getline(cin, filename);
-
-                cout << "length:" << endl;
-                cout.flush();
-                cin.sync();
-                cin >> length;
-                cin.sync();
-                write(filename, length);
-                break;
+                    cout << "length:" << endl;
+                    cout.flush();
+                    cin.sync();
+                    cin >> length;
+                    cin.sync();
+                    write(filename, length);
+                    break;
             case 2: cout << "Filename:" << endl;
-                cout.flush();
-                cin.sync();
-                getline(cin, filename);
-                cout << "index insert" << endl;
-                cout.flush();
-                cin.sync();
-                cin >> is;
-                cin.sync();
-                insert(filename, is);
-                break;
+                    cout.flush();
+                    cin.sync();
+                    getline(cin, filename);
+                    cout << "index insert" << endl;
+                    cout.flush();
+                    cin.sync();
+                    cin >> is;
+                    cin.sync();
+                    cout << "length" << endl;
+                    int ist_length;
+                    cin.sync();
+                    cin >> ist_length;
+                    insert(filename, is, ist_length);
+                    break;
             case 3: print_file_info();
                 break;
             case 4: printFAT();
                 break;
             case 5: cout << "Filename" << endl;
-                cin.sync();
-                cout.flush();
-                cin.sync();
-                getline(cin, filename);
-                cin.sync();
-                filename = temp;
-                search_file(filename);
-                break;
+                    cin.sync();
+                    cout.flush();
+                    cin.sync();
+                    getline(cin, filename);
+                    cin.sync();
+                    filename = temp;
+                    search_file(filename);
+                    break;
             case 6: cout << "Check index" << endl;
-                int searchpt;
-                cout.flush();
-                cin.sync();
-                cin >> searchpt;
-                cin.sync();
-                cout.flush();
-                search_point(searchpt);
-                break;
-
-
-
+                    int searchpt;
+                    cout.flush();
+                    cin.sync();
+                    cin >> searchpt;
+                    cin.sync();
+                    cout.flush();
+                    search_point(searchpt);
+                    break;
+            case 7: cout << "Filename" << endl;
+                    cin.sync();
+                    string chk_name;
+                    cin.sync();
+                    getline(cin, chk_name);
+                    del_file(chk_name);
+                    break;
         }
-        cout << filename;
-
+        
     }
     printFAT();
     return 0;

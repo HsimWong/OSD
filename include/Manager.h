@@ -18,13 +18,151 @@ private:
 	int pro_num;
 	queue<PCB * > * process_list;	// queue for processes to be added, initialized in main();
 	void project_adder();			// Function for adding process into ready list in timelet mode
+	void project_adder_prio();
 public:
 	Manager();
 	~Manager();
 	void manager_run_timelet();
 	string ToString();
 	void manager_run_fcfs();
+	void manager_run_prio();
 };
+
+void Manager::manager_run_prio(){
+	while(true){
+		if(this -> process_list -> empty() && this -> processing -> empty() && this -> ready -> empty()){
+			break;
+		}
+
+		if(this -> round_count == 9){
+			cout << "";
+			cin.sync();
+		}
+		Sleep(1000);
+		/* Check if here is new process to be pushed in 
+		 * In Every tick, there is possibility that a process
+		 * is added into the queue for ready process		
+		*/
+		this -> project_adder();
+		/* No matter what happen, each process has to be ticked();
+		 * First, check whether new process
+		 * All processes has to be ticked()!!!
+		 */
+		
+		PCB * temp;
+		/* Tick the ready queue; */
+		for(int i = 0; (int)i < (int)(ready -> size()); i++){
+			if(i == 0){
+				temp = ready -> front();
+			}
+			else{
+				temp = temp -> next_node;
+			}
+			temp -> tick_fcfs();
+		}
+		/* check the tick of processing queue;*/
+		if(processing -> size() != 0){
+			temp = processing -> front();
+			temp -> tick_fcfs();
+		}
+		/* Check the tick() of finished queue;*/
+		for(int i = 0; i < finished -> size(); i++){
+			if(i == 0){
+				if(finished -> size() == 0){
+					break;
+				}
+				temp = finished -> front();
+			}
+			else{
+				temp = temp -> next_node;
+			}
+			temp -> tick();
+		}
+
+		/* Check the Next position after tick with status changed */
+		if(!this -> processing -> empty()){
+			/* The processing process whose state == 'f' now is to be pushed
+			 * into the finished queue. If ready is not empty, its front will
+			 * be pushed into processing queue.
+			 * When ready is empty, do nothing*/
+			if(this -> processing -> front() -> state == 'f'){
+				if(!this -> ready -> empty()){
+					this -> processing -> back() -> append(this -> ready -> front());
+					this -> processing -> push(this -> ready -> front());
+					this -> ready -> pop();
+				}
+				if(!this -> finished -> empty()){
+					this -> finished -> back() -> append(this -> processing -> front());
+				}
+				this -> finished -> push(this -> processing -> front());
+				this -> processing -> pop();
+				if(!this -> processing -> empty()){
+					this -> processing -> front() -> run_the_process();
+				}
+			}
+		}
+		else{
+			cerr << "No process is under processing" << endl;
+		}
+
+		/* Nothing is to be done if state == 'r' */
+		this -> ToString();
+		cout << endl;
+		this -> round_count ++;			// total count tick since boot
+	}
+}
+
+void Manager::project_adder_prio (){
+	if(!this -> process_list -> empty()){
+		/* Loop here to ensure that processes with same round# can be added simultaneously*/
+		for(int i = 0; i < (int)(this -> process_list -> size()); i++){
+			if(this -> process_list -> front() -> round == this -> round_count){
+				if(this -> ready -> empty() && this -> processing -> empty()){
+					this -> processing -> push(this -> process_list -> front());
+					this -> process_list -> pop();
+					this -> processing -> front() -> run_the_process();
+				}
+				else{
+					if(!this -> ready -> empty()){
+						this -> ready -> back() -> append(this -> process_list -> front());
+					}
+					this -> ready -> push(this -> process_list -> front());
+					this -> process_list -> pop();
+				}
+			}
+			else{
+				break;
+			}
+		}
+
+	}
+
+
+
+	/* Sort the list of ready according to their priority */
+	PCB * array[10];
+	PCB * ptr = this -> ready -> front();
+	for(int i = 0; i < this -> ready -> size(); i++){
+		 array[i] = ptr;
+		 ptr = ptr -> next_node;
+	}
+	for(int i = 0; i < this -> ready -> size(); i++){
+		PCB * temp_min = array[i];
+		for(int j = i + 1; j < pro_num; j++){
+			if(array[j] -> priority < array[i] -> priority){
+				temp_min = array[j];
+				array[j] = array[i];
+				array[i] = temp_min;
+
+			}
+		}
+		if(!this -> ready -> empty()){
+			this -> ready -> back() -> append(temp_min);
+		}
+		this -> ready -> push(temp_min);
+	}
+}
+
 
 Manager::Manager(){
 	this -> ready = new queue<PCB *>();
@@ -191,13 +329,12 @@ void Manager::manager_run_fcfs(){
 				if(!this -> processing -> empty()){
 					this -> processing -> front() -> run_the_process();
 				}
-//
 			}
 		}
 		else{
 			cerr << "No process is under processing" << endl;
 		}
-//		cout << this -> ToString() << endl;
+
 		/* Nothing is to be done if state == 'r' */
 		this -> ToString();
 		cout << endl;
@@ -214,7 +351,6 @@ void Manager::manager_run_timelet(){
 		if(this -> process_list -> empty() && this -> processing -> empty() && this -> ready -> empty()){
 			break;
 		}
-//		cout << this -> round_count << endl;
 		if(this -> round_count == 9){
 			cout << "";
 			cin.sync();

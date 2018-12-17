@@ -148,8 +148,9 @@ bool PCB::tick_fcfs(){
 		/* next state of 'r' process is realised outside
 		 * after tick() */
 	}
-	
 }
+
+
 
 char PCB::get_state(){
 
